@@ -21,17 +21,29 @@ async function installWorkflow(name: string) {
     const targetDir = path.join(process.cwd(), config.workflowsDir);
     await fs.mkdir(targetDir, { recursive: true });
 
-    // Get workflow template from npm package
-    const templatePath = path.join(__dirname, "..", "templates", `${name}.ts`);
-    const workflowContent = await fs.readFile(templatePath, "utf-8");
+    // Get workflow template from the package's templates directory
+    const templatePath = path.join(
+      require.resolve("@ai.ntellect/workflows"),
+      "..",
+      "..",
+      "templates",
+      `${name}.ts`
+    );
 
-    // Write workflow file
-    const targetPath = path.join(targetDir, `${name}.ts`);
-    await fs.writeFile(targetPath, workflowContent);
+    try {
+      const workflowContent = await fs.readFile(templatePath, "utf-8");
 
-    spinner.succeed("Installation complete");
-    console.log(chalk.green("\n✔ Created 1 file:"));
-    console.log(chalk.dim(`  - ${config.workflowsDir}/${name}.ts`));
+      // Write workflow file
+      const targetPath = path.join(targetDir, `${name}.ts`);
+      await fs.writeFile(targetPath, workflowContent);
+
+      spinner.succeed("Installation complete");
+      console.log(chalk.green("\n✔ Created 1 file:"));
+      console.log(chalk.dim(`  - ${config.workflowsDir}/${name}.ts`));
+    } catch (error) {
+      spinner.fail(`Template '${name}' not found`);
+      process.exit(1);
+    }
   } catch (error) {
     spinner.fail("Installation failed");
     console.error(chalk.red(error));
