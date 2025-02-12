@@ -5,14 +5,19 @@ import { Command } from "commander";
 import fs from "fs-extra";
 import path from "path";
 
-// Helper function to install dependencies
-async function installDependencies(directory: string) {
+async function installComponentDependencies(componentPath: string) {
   try {
-    console.log("📦 Installing dependencies...");
-    execSync("npm install", { cwd: directory, stdio: "inherit" });
-    console.log("✅ Dependencies installed successfully");
+    const packageJsonPath = path.join(componentPath, "package.json");
+
+    // Check if package.json exists for the component
+    if (fs.existsSync(packageJsonPath)) {
+      console.log("📦 Installing component dependencies...");
+      execSync("npm install", { cwd: componentPath, stdio: "inherit" });
+      console.log("✅ Component dependencies installed successfully");
+    }
   } catch (error) {
-    console.error("❌ Failed to install dependencies:", error);
+    console.error("❌ Failed to install component dependencies:", error);
+    throw error; // Propagate error to handle cleanup in addComponent
   }
 }
 
@@ -29,7 +34,6 @@ async function downloadFile(url: string, destPath: string) {
 export async function addComponent(component: string) {
   const baseDestPath = path.join(process.cwd(), "workflows");
   const componentPath = path.join(baseDestPath, component);
-
   if (fs.existsSync(componentPath)) {
     console.log(`❌ Component ${component} already exists.`);
     return;
@@ -37,9 +41,6 @@ export async function addComponent(component: string) {
 
   try {
     console.log(`🚀 Adding ${component} component...`);
-
-    // Create base directory
-    fs.mkdirSync(componentPath, { recursive: true });
 
     // Base URL for the template files
     // use curl -s https://api.github.com/repos/ai-ntellect/workflows/contents/templates/counter
@@ -56,7 +57,7 @@ export async function addComponent(component: string) {
     // Download package.json if it exists
     try {
       // Install dependencies if package.json was downloaded
-      await installDependencies(componentPath);
+      await installComponentDependencies(componentPath);
     } catch (error) {
       // Ignore if package.json doesn't exist
     }
