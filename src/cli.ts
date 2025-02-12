@@ -1,7 +1,9 @@
 #!/usr/bin/env node
 
+import chalk from "chalk";
 import { execSync } from "child_process";
 import { Command } from "commander";
+import { diffLines, type Change } from "diff";
 import fs from "fs-extra";
 import path from "path";
 
@@ -72,6 +74,69 @@ export async function addComponent(component: string) {
   }
 }
 
+// Add new helper function for diff
+async function printDiff(diff: Change[]) {
+  diff.forEach((part) => {
+    if (part) {
+      if (part.added) {
+        return process.stdout.write(chalk.green(part.value));
+      }
+      if (part.removed) {
+        return process.stdout.write(chalk.red(part.value));
+      }
+      return process.stdout.write(part.value);
+    }
+  });
+}
+
+async function compareComponent(component: string) {
+  const baseDestPath = path.join(process.cwd(), "workflows");
+  const componentPath = path.join(baseDestPath, component);
+
+  if (!fs.existsSync(componentPath)) {
+    console.log(`❌ Component ${component} does not exist locally.`);
+    return;
+  }
+
+  try {
+    console.log(`🔍 Checking for updates in ${component}...`);
+
+    // Fetch remote component files
+    const res = await fetch(
+      `https://api.github.com/repos/ai-ntellect/workflows/contents/templates/${component}`
+    );
+    const data = await res.json();
+
+    let hasUpdates = false;
+    for (const file of data) {
+      const localFilePath = path.join(componentPath, file.name);
+
+      if (!fs.existsSync(localFilePath)) {
+        console.log(`📄 New file found: ${file.name}`);
+        hasUpdates = true;
+        continue;
+      }
+
+      const remoteContent = await (await fetch(file.download_url)).text();
+      const localContent = await fs.readFile(localFilePath, "utf8");
+
+      const diff = diffLines(localContent, remoteContent);
+
+      if (diff.length > 1) {
+        console.log(`\n📝 Changes in ${file.name}:`);
+        await printDiff(diff);
+        hasUpdates = true;
+      }
+    }
+
+    if (!hasUpdates) {
+      console.log("✅ Component is up to date.");
+    }
+  } catch (error) {
+    console.error(`❌ Failed to check updates for ${component}:`, error);
+  }
+}
+
 const program = new Command();
 
 program
@@ -79,6 +144,13 @@ program
   .description("Add a component to your project")
   .action((component) => {
     addComponent(component);
+  });
+
+program
+  .command("diff <component>")
+  .description("Check for updates in a component")
+  .action((component) => {
+    compareComponent(component);
   });
 
 program.parse(process.argv);
