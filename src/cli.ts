@@ -13,19 +13,10 @@ export async function addComponent(component: string) {
   }
 
   // check if the component exists in the templates folder
-  const templatePath = path.resolve(
-    __dirname,
-    "..",
-    "templates",
-    `${component}.ts`
-  );
+  const url = `https://raw.githubusercontent.com/ai-ntellect/workflows/refs/heads/main/templates/${component}.ts`;
 
-  if (!fs.existsSync(templatePath)) {
-    console.log(`❌ Le composant ${component} n'existe pas.`);
-    return;
-  }
-
-  const content = fs.readFileSync(templatePath, "utf-8");
+  const res = await fetch(url);
+  const content = await res.text();
   fs.outputFileSync(destPath, content);
 
   console.log(`✅ ${component} ajouté avec succès.`);

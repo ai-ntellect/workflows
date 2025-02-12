@@ -1,6 +1,6 @@
 {
   "name": "@ai.ntellect/workflows",
-  "version": "0.0.6",
+  "version": "0.0.7",
   "description": "Pre-built workflows for @ai.ntellect/core framework",
   "main": "dist/src/index.js",
   "types": "dist/src/index.d.ts",
