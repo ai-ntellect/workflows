@@ -42,21 +42,19 @@ export async function addComponent(component: string) {
     fs.mkdirSync(componentPath, { recursive: true });
 
     // Base URL for the template files
-    const baseUrl = `https://raw.githubusercontent.com/ai-ntellect/workflows/refs/heads/main/templates/${component}`;
-
-    // Download main component file
-    await downloadFile(
-      `${baseUrl}/index.ts`,
-      path.join(componentPath, "index.ts")
+    // use curl -s https://api.github.com/repos/ai-ntellect/workflows/contents/templates/counter
+    const res = await fetch(
+      "https://api.github.com/repos/ai-ntellect/workflows/contents/templates/counter"
     );
+    const data = await res.json();
+    console.log(data);
+    for (const file of data) {
+      const baseUrl = `https://raw.githubusercontent.com/ai-ntellect/workflows/refs/heads/main/templates/${component}/${file.name}`;
+      await downloadFile(baseUrl, path.join(componentPath, file.name));
+    }
 
     // Download package.json if it exists
     try {
-      await downloadFile(
-        `${baseUrl}/package.json`,
-        path.join(componentPath, "package.json")
-      );
-
       // Install dependencies if package.json was downloaded
       await installDependencies(componentPath);
     } catch (error) {
