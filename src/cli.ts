@@ -110,7 +110,7 @@ async function compareComponent(component: string) {
     let hasUpdates = false;
     for (const file of data) {
       const localFilePath = path.join(componentPath, file.name);
-
+      console.log({ localFilePath });
       if (!fs.existsSync(localFilePath)) {
         console.log(`📄 New file found: ${file.name}`);
         hasUpdates = true;
@@ -119,9 +119,9 @@ async function compareComponent(component: string) {
 
       const remoteContent = await (await fetch(file.download_url)).text();
       const localContent = await fs.readFile(localFilePath, "utf8");
-
+      console.log({ localContent, remoteContent });
       const diff = diffLines(localContent, remoteContent);
-
+      console.log({ diff });
       if (diff.length > 1) {
         console.log(`\n📝 Changes in ${file.name}:`);
         await printDiff(diff);
