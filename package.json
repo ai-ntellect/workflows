@@ -1,11 +1,11 @@
 {
   "name": "@ai.ntellect/workflows",
-  "version": "0.0.0",
+  "version": "0.0.1",
   "description": "Pre-built workflows for @ai.ntellect/core framework",
-  "main": "dist/index.js",
-  "types": "dist/index.d.ts",
+  "main": "dist/src/index.js",
+  "types": "dist/src/index.d.ts",
   "bin": {
-    "workflow": "./dist/cli.js"
+    "workflow": "./dist/src/cli.js"
   },
   "scripts": {
     "build": "rm -rf dist && tsc",
