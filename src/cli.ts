@@ -12,7 +12,7 @@ async function installComponentDependencies(componentPath: string) {
     // Check if package.json exists for the component
     if (fs.existsSync(packageJsonPath)) {
       console.log("📦 Installing component dependencies...");
-      execSync("npm install", { cwd: componentPath, stdio: "inherit" });
+      execSync("pnpm install", { cwd: componentPath, stdio: "inherit" });
       console.log("✅ Component dependencies installed successfully");
     }
   } catch (error) {
