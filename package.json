@@ -10,7 +10,8 @@
   "scripts": {
     "build": "rm -rf dist && tsc && chmod +x dist/src/cli.js",
     "prepublishOnly": "pnpm build",
-    "dev": "ts-node src/cli.ts"
+    "dev": "ts-node src/cli.ts",
+    "publish": "npm publish --access public"
   },
   "files": [
     "dist",

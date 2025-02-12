@@ -22,9 +22,9 @@ export const counterWorkflow = new GraphFlow<typeof CounterSchema>(
       },
       {
         name: "checkThreshold",
-        condition: (context) => context.count < 5,
+        condition: (context) => context.count < 10,
         execute: async (context) => {
-          if (context.count >= 5) {
+          if (context.count >= 10) {
             context.message = "Threshold reached!";
           }
         },
