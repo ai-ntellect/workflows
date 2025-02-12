@@ -1,15 +1,14 @@
 {
   "name": "@ai.ntellect/workflows",
-  "version": "0.0.5",
+  "version": "0.0.6",
   "description": "Pre-built workflows for @ai.ntellect/core framework",
   "main": "dist/src/index.js",
   "types": "dist/src/index.d.ts",
   "bin": {
-    "@ai.ntellect/workflows": "./dist/src/cli.js",
     "ai-workflows": "./dist/src/cli.js"
   },
   "scripts": {
-    "build": "rm -rf dist && tsc",
+    "build": "rm -rf dist && tsc && chmod +x dist/src/cli.js",
     "prepublishOnly": "pnpm build",
     "dev": "ts-node src/cli.ts"
   },

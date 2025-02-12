@@ -4,7 +4,6 @@ import { Command } from "commander";
 import fs from "fs-extra";
 import path from "path";
 
-
 export async function addComponent(component: string) {
   const destPath = path.join(process.cwd(), "workflows", component + ".ts");
 
@@ -14,11 +13,11 @@ export async function addComponent(component: string) {
   }
 
   // check if the component exists in the templates folder
-  const templatePath = path.join(
+  const templatePath = path.resolve(
     __dirname,
     "..",
     "templates",
-    component + ".ts"
+    `${component}.ts`
   );
 
   if (!fs.existsSync(templatePath)) {
