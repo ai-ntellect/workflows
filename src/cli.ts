@@ -6,7 +6,10 @@ import ora from "ora";
 import path from "path";
 import { getWorkflowConfig } from "./config";
 
-const program = new Command();
+const program = new Command()
+  .name("@ai.ntellect/workflows")
+  .description("CLI to add pre-built workflows")
+  .version("1.0.0");
 
 async function installWorkflow(name: string) {
   const spinner = ora("Checking registry...").start();
@@ -52,13 +55,10 @@ async function installWorkflow(name: string) {
 }
 
 program
-  .name("@ai.ntellect/workflows")
-  .description("CLI to add pre-built workflows")
-  .version("1.0.0");
-
-program
   .command("add <workflow>")
   .description("Add a pre-built workflow")
-  .action(installWorkflow);
+  .action(async (workflow) => {
+    await installWorkflow(workflow);
+  });
 
-program.parse();
+program.parse(process.argv);
