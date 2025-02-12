@@ -1,64 +1,44 @@
 #!/usr/bin/env node
-import chalk from "chalk";
+
 import { Command } from "commander";
-import fs from "fs/promises";
-import ora from "ora";
+import fs from "fs-extra";
 import path from "path";
-import { getWorkflowConfig } from "./config";
 
-const program = new Command()
-  .name("@ai.ntellect/workflows")
-  .description("CLI to add pre-built workflows")
-  .version("1.0.0");
 
-async function installWorkflow(name: string) {
-  const spinner = ora("Checking registry...").start();
+export async function addComponent(component: string) {
+  const destPath = path.join(process.cwd(), "workflows", component + ".ts");
 
-  try {
-    const config = await getWorkflowConfig();
-
-    spinner.succeed("Registry checked");
-    spinner.start("Installing workflow...");
-
-    // Create workflows directory if it doesn't exist
-    const targetDir = path.join(process.cwd(), config.workflowsDir);
-    await fs.mkdir(targetDir, { recursive: true });
-
-    // Get workflow template from the package's templates directory
-    const templatePath = path.join(
-      require.resolve("@ai.ntellect/workflows"),
-      "..",
-      "..",
-      "templates",
-      `${name}.ts`
-    );
-
-    try {
-      const workflowContent = await fs.readFile(templatePath, "utf-8");
-
-      // Write workflow file
-      const targetPath = path.join(targetDir, `${name}.ts`);
-      await fs.writeFile(targetPath, workflowContent);
-
-      spinner.succeed("Installation complete");
-      console.log(chalk.green("\n✔ Created 1 file:"));
-      console.log(chalk.dim(`  - ${config.workflowsDir}/${name}.ts`));
-    } catch (error) {
-      spinner.fail(`Template '${name}' not found`);
-      process.exit(1);
-    }
-  } catch (error) {
-    spinner.fail("Installation failed");
-    console.error(chalk.red(error));
-    process.exit(1);
+  if (fs.existsSync(destPath)) {
+    console.log(`❌ Le composant ${component} existe déjà.`);
+    return;
   }
+
+  // check if the component exists in the templates folder
+  const templatePath = path.join(
+    __dirname,
+    "..",
+    "templates",
+    component + ".ts"
+  );
+
+  if (!fs.existsSync(templatePath)) {
+    console.log(`❌ Le composant ${component} n'existe pas.`);
+    return;
+  }
+
+  const content = fs.readFileSync(templatePath, "utf-8");
+  fs.outputFileSync(destPath, content);
+
+  console.log(`✅ ${component} ajouté avec succès.`);
 }
 
+const program = new Command();
+
 program
-  .command("add <workflow>")
-  .description("Add a pre-built workflow")
-  .action(async (workflow) => {
-    await installWorkflow(workflow);
+  .command("add <component>")
+  .description("Ajoute un composant à ton projet")
+  .action((component) => {
+    addComponent(component);
   });
 
 program.parse(process.argv);
